@@ -1,0 +1,85 @@
+[tool.poetry]
+
+name = "bussola_etl_seap"
+version = "0.0"
+description = "Extract, transform and load data fromthe Rio de Janeiro State Penal Administration Secretariat weekly bulletins on occupation of prision units. "
+
+license = "Apache-2.0"
+
+authors = ["Inova_MPRJ <inova@mprj.mp.br>"]
+
+readme = "README.md"
+
+homepage = "https://pypi.org/project/bussola_etl_seap"
+documentation = "https://bussola_etl_seap.readthedocs.io"
+repository = "https://github.com/inova-mprj/bussola-etl-seap"
+
+keywords = [
+]
+classifiers = [
+    # according to: https://pypi.org/pypi?%3Aaction=list_classifiers
+    "Development Status :: 1 - Planning",
+    "Natural Language :: Portuguese (Brazilian)",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "License :: OSI Approved :: Apache Software License",
+    "Topic :: Utilities"
+]
+
+[tool.poetry.dependencies]
+
+python = "^3.8"
+
+# TODO: Add your library's requirements
+click = "^7.0"
+minilog = "^1.5"
+pandas = "^1.1"
+
+[tool.poetry.dev-dependencies]
+
+# Formatters
+black = "=20.8b1"
+isort = "=5.5.1"
+
+# Linters
+mypy = "*"
+pydocstyle = "*"
+pylint = "~2.6.0"
+
+# Testing
+pytest = "^5.3.2"
+pytest-cov = "*"
+pytest-describe = { git = "https://github.com/pytest-dev/pytest-describe", rev = "453aa9045b265e313f356f1492d8991c02a6aea6" } # use 2.0 when released
+pytest-expecter = "^2.1"
+pytest-random = "*"
+freezegun = "*"
+
+# Reports
+coveragespace = "^3.1.1"
+
+# Documentation
+mkdocs = "~1.0"
+pygments = "^2.5.2"
+
+# Tooling
+pyinstaller = "*"
+sniffer = "*"
+MacFSEvents = { version = "*", platform = "darwin" }
+pync = { version = "*", platform = "darwin" }
+ipython = "^7.12.0"
+
+[tool.poetry.scripts]
+
+BussolaETLSeap = "bussola_etl_seap.cli:main"
+
+[tool.black]
+
+target-version = ["py36", "py37", "py38"]
+skip-string-normalization = true
+
+[build-system]
+
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

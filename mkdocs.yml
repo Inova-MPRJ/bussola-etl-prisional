@@ -1,0 +1,19 @@
+site_name: BussolaETLSeap
+site_description: Extract, transform and load data from the Rio de Janeiro State Penal Administration Secretariat weekly bulletins on occupation of prision units. 
+site_author: Inova_MPRJ
+
+repo_url: https://github.com/inova-mprj/bussola-etl-seap
+edit_uri: https://github.com/inova-mprj/bussola-etl-seap/edit/main/docs
+
+theme: readthedocs
+
+markdown_extensions:
+  - codehilite
+
+nav:
+  - Home: index.md
+  - Advanced: advanced.md
+  - About:
+    - Release Notes: about/changelog.md
+    - Contributing: about/contributing.md
+    - License: about/license.md
