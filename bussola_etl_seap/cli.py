@@ -4,17 +4,13 @@ import click
 import log
 
 # from . import utils
-from typing import Optional
 
 
 @click.command()
-@click.argument('input')
-@click.argument('output')
-def main(input: Optional[str] = None, output: Optional[str] = None) -> None:
+@click.argument('input', default="", type=click.Path(exists=False))
+@click.argument('output', default="", type=click.Path(exists=False))
+def main(input: str, output: str) -> None:
     log.init()
-
-    if input is not None:
-        pass
 
     message = 'Este módulo está em construção!'
     click.echo(message)

@@ -9,5 +9,6 @@ from bussola_etl_seap import bussola_etl_seap as seap
 
 def test_seap_bulletin_v1_constructor():
     input_test = './myfile.xlsx'
+    output_test = './myresult.csv'
     with pytest.raises(NotImplementedError):
-        seap.SEAPBulletinV1(input_test)
+        seap.SEAPBulletinV1(input_test, output_test)

@@ -2,18 +2,14 @@
 # pylint: disable=redefined-outer-name,unused-variable,expression-not-assigned
 
 
-import click.testing.CliRunner
-import pytest
+from click.testing import CliRunner
 
 from bussola_etl_seap.cli import main
 
 
-@pytest.fixture
-def runner():
-    return click.testing.CliRunner()
-
-
 def test_main():
-    result = runner().invoke(main)
+    """Teste da função de entrada da interface de comando"""
+    runner = CliRunner()
+    result = runner.invoke(main)
     assert result.exit_code == 0
-    assert result.output == 'Este módulo está em construção!'
+    assert result.output == 'Este módulo está em construção!\n'

@@ -8,7 +8,9 @@ class SEAPBulletinV1():
 
     def __init__(self, input_path: str, output_path: str):
         # import file
-        self.bulletin = self.import_bulletin(input_path)
+        self.input_path = input_path
+        self.output_path = output_path
+        self.bulletin = self.import_bulletin()
 
     def import_bulletin(self):
         # TO-DO: implement import function
