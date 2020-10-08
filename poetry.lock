@@ -668,6 +668,7 @@ pytest = ">=2.6.0"
 reference = "453aa9045b265e313f356f1492d8991c02a6aea6"
 type = "git"
 url = "https://github.com/pytest-dev/pytest-describe"
+
 [[package]]
 category = "dev"
 description = "Better testing with expecter and pytest."
@@ -870,8 +871,16 @@ optional = false
 python-versions = "*"
 version = "1.12.1"
 
+[[package]]
+category = "main"
+description = "Library for developers to extract data from Microsoft Excel (tm) spreadsheet files"
+name = "xlrd"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+version = "1.2.0"
+
 [metadata]
-content-hash = "11f3f2da7367af125af62dca9dc731d44c640500c387ab64ade1aa7c4478218f"
+content-hash = "c63c1404d79fe12f9c43cdcb77006c17d4c990483141601b014db874abc33616"
 lock-version = "1.0"
 python-versions = "^3.8"
 
@@ -1375,4 +1384,8 @@ wcwidth = [
 ]
 wrapt = [
     {file = "wrapt-1.12.1.tar.gz", hash = "sha256:b62ffa81fb85f4332a4f609cab4ac40709470da05643a082ec1eb88e6d9b97d7"},
+]
+xlrd = [
+    {file = "xlrd-1.2.0-py2.py3-none-any.whl", hash = "sha256:e551fb498759fa3a5384a94ccd4c3c02eb7c00ea424426e212ac0c57be9dfbde"},
+    {file = "xlrd-1.2.0.tar.gz", hash = "sha256:546eb36cee8db40c3eaa46c351e67ffee6eeb5fa2650b71bc4c758a29a1b29b2"},
 ]

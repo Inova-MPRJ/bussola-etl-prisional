@@ -1,8 +1,8 @@
 [tool.poetry]
 
 name = "bussola_etl_seap"
-version = "0.0"
-description = "Extract, transform and load data fromthe Rio de Janeiro State Penal Administration Secretariat weekly bulletins on occupation of prision units. "
+version = "0.1.0"
+description = "Extract, transform and load data from the Rio de Janeiro State Penal Administration Secretariat weekly bulletins on occupation of prison units."
 
 license = "Apache-2.0"
 
@@ -36,6 +36,7 @@ python = "^3.8"
 click = "^7.0"
 minilog = "^1.5"
 pandas = "^1.1"
+xlrd = "^1.2.0"
 
 [tool.poetry.dev-dependencies]
 
@@ -72,7 +73,7 @@ ipython = "^7.12.0"
 
 [tool.poetry.scripts]
 
-BussolaETLSeap = "bussola_etl_seap.cli:main"
+BussolaETLSeap = "bussola_etl_seap.cli:etl"
 
 [tool.black]
 

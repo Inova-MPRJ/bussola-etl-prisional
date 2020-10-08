@@ -3,8 +3,8 @@
 """Package entry point."""
 
 
-from bussola_etl_seap.cli import main
+from cli import etl
 
 
 if __name__ == '__main__':  # pragma: no cover
-    main()
+    etl()

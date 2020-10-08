@@ -49,3 +49,12 @@ Icon*
 # Visual Studio Code
 *.code-workspace
 .vscode
+
+# Input and output data
+data/input/*
+data/output/*
+data/temp/*
+*.xls
+*.xlsx
+*.csv
+!data/input/example.xlsx
