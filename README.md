@@ -13,7 +13,15 @@ Este projeto foi gerado com [cookiecutter](https://github.com/audreyr/cookiecutt
 
 ## Requisitos
 
-* Python 3.8+
+* Python 3.8
+
+### Windows
+
+- Microsoft Visual C++ 14.0+ [[instalar](https://visualstudio.microsoft.com/pt-br/visual-cpp-build-tools/)]
+
+### Linux
+
+- python3-venv
 
 ## Instalação
 
