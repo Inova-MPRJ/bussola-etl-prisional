@@ -323,7 +323,7 @@ class SEAPBulletin:
         tables: Union[str, List[str]] = 'all',
         date_col: Optional[str] = None,
         mode: str = 'w',
-        orient: str = 'table',
+        orient: str = 'records',
         # TODO: write mode (append, overwrite, fail)
         **kwargs,
     ) -> None:
@@ -378,17 +378,18 @@ class SEAPBulletin:
             if date_col is not None:
                 log.debug('    Adding date column...')
                 dataframe[date_col] = self.date.date()
-            # replace temporary index
-            log.debug('    Resetting index...')
-            dataframe.set_index(self.id_col, inplace=True)
             # export
             outfile_path = (
                 output_basepath + '_' + tablename + '.' + output_format
             )
             with open(outfile_path, mode, encoding='utf-8') as outfile:
                 if output_format == 'csv':
+                    # replace temporary index
+                    dataframe.set_index(self.id_col, inplace=True)
+                    # export csv
                     dataframe.to_csv(outfile, mode=mode, **kwargs)
                 elif output_format == 'json':
+                    # export json
                     dataframe.to_json(
                         outfile,
                         orient=orient,
