@@ -104,6 +104,7 @@ class SEAPBulletin:
         self.capacity = _custody_count_parsed['capacity']
         self.imprisoned = _custody_count_parsed['imprisoned']
         self.imprisoned_detail = _custody_count_parsed['imprisoned_detail']
+        self._summary = None
         # TODO: add summary DataFrame as an attribute
 
     @classmethod
@@ -226,7 +227,7 @@ class SEAPBulletin:
         # discard duplicates from merged cells
         facilities = facilities.dropna().drop_duplicates()
         capacity = capacity.dropna().drop_duplicates()
-        imprisoned_detail = imprisoned.dropna().drop_duplicates()
+        imprisoned_detail = imprisoned_detail.dropna().drop_duplicates()
         log.info('Successfully parsed custody count!')
         return {
             'facilities': facilities,
