@@ -7,6 +7,20 @@ python-versions = "*"
 version = "0.17"
 
 [[package]]
+category = "main"
+description = "The Anvil server uplink library"
+name = "anvil-uplink"
+optional = true
+python-versions = "*"
+version = "0.3.33"
+
+[package.dependencies]
+argparse = "*"
+future = "*"
+six = "*"
+ws4py = "*"
+
+[[package]]
 category = "dev"
 description = "A small Python module for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
 name = "appdirs"
@@ -22,6 +36,14 @@ name = "appnope"
 optional = false
 python-versions = "*"
 version = "0.1.0"
+
+[[package]]
+category = "main"
+description = "Python command-line parsing library"
+name = "argparse"
+optional = true
+python-versions = "*"
+version = "1.4.0"
 
 [[package]]
 category = "dev"
@@ -188,9 +210,8 @@ version = "1.0.0"
 python-dateutil = ">=2.7"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "Clean single-source support for Python 3 and 2"
-marker = "sys_platform == \"win32\""
 name = "future"
 optional = false
 python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
@@ -336,7 +357,7 @@ description = "Python implementation of Markdown."
 name = "markdown"
 optional = false
 python-versions = ">=3.6"
-version = "3.3.1"
+version = "3.3.2"
 
 [package.extras]
 testing = ["coverage", "pyyaml"]
@@ -697,7 +718,6 @@ pytest = ">=2.6.0"
 reference = "453aa9045b265e313f356f1492d8991c02a6aea6"
 type = "git"
 url = "https://github.com/pytest-dev/pytest-describe"
-
 [[package]]
 category = "dev"
 description = "Better testing with expecter and pytest."
@@ -877,11 +897,11 @@ description = "HTTP library with thread-safe connection pooling, file post, and 
 name = "urllib3"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, <4"
-version = "1.25.10"
+version = "1.25.11"
 
 [package.extras]
 brotli = ["brotlipy (>=0.6.0)"]
-secure = ["certifi", "cryptography (>=1.3.4)", "idna (>=2.0.0)", "pyOpenSSL (>=0.14)", "ipaddress"]
+secure = ["pyOpenSSL (>=0.14)", "cryptography (>=1.3.4)", "idna (>=2.0.0)", "certifi", "ipaddress"]
 socks = ["PySocks (>=1.5.6,<1.5.7 || >1.5.7,<2.0)"]
 
 [[package]]
@@ -902,14 +922,25 @@ version = "1.12.1"
 
 [[package]]
 category = "main"
+description = "WebSocket client and server library for Python 2 and 3 as well as PyPy"
+name = "ws4py"
+optional = true
+python-versions = "*"
+version = "0.5.1"
+
+[[package]]
+category = "main"
 description = "Library for developers to extract data from Microsoft Excel (tm) spreadsheet files"
 name = "xlrd"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 version = "1.2.0"
 
+[extras]
+anvil = ["anvil-uplink"]
+
 [metadata]
-content-hash = "f834c79195be708d4c39ae8923e5289d22c941b8bea7f7150ac886dbd289d9f2"
+content-hash = "e0a3a2d26d48171f435fbb07a0cffd78687e3830dff28c89377992fc4c2088ef"
 lock-version = "1.0"
 python-versions = "~3.8"
 
@@ -918,6 +949,10 @@ altgraph = [
     {file = "altgraph-0.17-py2.py3-none-any.whl", hash = "sha256:c623e5f3408ca61d4016f23a681b9adb100802ca3e3da5e718915a9e4052cebe"},
     {file = "altgraph-0.17.tar.gz", hash = "sha256:1f05a47122542f97028caf78775a095fbe6a2699b5089de8477eb583167d69aa"},
 ]
+anvil-uplink = [
+    {file = "anvil-uplink-0.3.33.tar.gz", hash = "sha256:f1e75df59ae6246ce2a9e8153a6f72e4d7859effd46a736e2f87d7e91cb5005f"},
+    {file = "anvil_uplink-0.3.33-py2.py3-none-any.whl", hash = "sha256:bad8ef698d79b25b8c7c22599c66c7d0f994dbce457c3a1fd2f5b0d5713da45c"},
+]
 appdirs = [
     {file = "appdirs-1.4.4-py2.py3-none-any.whl", hash = "sha256:a841dacd6b99318a741b166adb07e19ee71a274450e68237b4650ca1055ab128"},
     {file = "appdirs-1.4.4.tar.gz", hash = "sha256:7d5d0167b2b1ba821647616af46a749d1c653740dd0d2415100fe26e27afdf41"},
@@ -925,6 +960,10 @@ appdirs = [
 appnope = [
     {file = "appnope-0.1.0-py2.py3-none-any.whl", hash = "sha256:5b26757dc6f79a3b7dc9fab95359328d5747fcb2409d331ea66d0272b90ab2a0"},
     {file = "appnope-0.1.0.tar.gz", hash = "sha256:8b995ffe925347a2138d7ac0fe77155e4311a0ea6d6da4f5128fe4b3cbe5ed71"},
+]
+argparse = [
+    {file = "argparse-1.4.0-py2.py3-none-any.whl", hash = "sha256:c31647edb69fd3d465a847ea3157d37bed1f95f19760b11a47aa91c04b666314"},
+    {file = "argparse-1.4.0.tar.gz", hash = "sha256:62b089a55be1d8949cd2bc7e0df0bddb9e028faefc8c32038cc84862aefdd6e4"},
 ]
 astroid = [
     {file = "astroid-2.4.2-py3-none-any.whl", hash = "sha256:bc58d83eb610252fd8de6363e39d4f1d0619c894b0ed24603b881c02e64c7386"},
@@ -1077,8 +1116,8 @@ macholib = [
     {file = "macholib-1.14.tar.gz", hash = "sha256:0c436bc847e7b1d9bda0560351bf76d7caf930fb585a828d13608839ef42c432"},
 ]
 markdown = [
-    {file = "Markdown-3.3.1-py3-none-any.whl", hash = "sha256:10db1204a6c4aff7c7cf3cf25cc02761703baea54b6fb5e2b9ce2c186d81116f"},
-    {file = "Markdown-3.3.1.tar.gz", hash = "sha256:c3ce9ebb035c078cac0f2036068d054e7dc34354eeecc49c173c33c96b124af6"},
+    {file = "Markdown-3.3.2-py3-none-any.whl", hash = "sha256:77b7bff443b1f97b4814fa438c181fd5882e31edb01b422856b3feca91475f3e"},
+    {file = "Markdown-3.3.2.tar.gz", hash = "sha256:4b71fbd2db30c1dfb400f22b25f41cb823fc1db0aa8b7b67d120644f92cc1011"},
 ]
 markupsafe = [
     {file = "MarkupSafe-1.1.1-cp27-cp27m-macosx_10_6_intel.whl", hash = "sha256:09027a7803a62ca78792ad89403b1b7a73a01c8cb65909cd876f7fcebd79b161"},
@@ -1416,8 +1455,8 @@ typing-extensions = [
     {file = "typing_extensions-3.7.4.3.tar.gz", hash = "sha256:99d4073b617d30288f569d3f13d2bd7548c3a7e4c8de87db09a9d29bb3a4a60c"},
 ]
 urllib3 = [
-    {file = "urllib3-1.25.10-py2.py3-none-any.whl", hash = "sha256:e7983572181f5e1522d9c98453462384ee92a0be7fac5f1413a1e35c56cc0461"},
-    {file = "urllib3-1.25.10.tar.gz", hash = "sha256:91056c15fa70756691db97756772bb1eb9678fa585d9184f24534b100dc60f4a"},
+    {file = "urllib3-1.25.11-py2.py3-none-any.whl", hash = "sha256:f5321fbe4bf3fefa0efd0bfe7fb14e90909eb62a48ccda331726b4319897dd5e"},
+    {file = "urllib3-1.25.11.tar.gz", hash = "sha256:8d7eaa5a82a1cac232164990f04874c594c9453ec55eef02eab885aa02fc17a2"},
 ]
 wcwidth = [
     {file = "wcwidth-0.2.5-py2.py3-none-any.whl", hash = "sha256:beb4802a9cebb9144e99086eff703a642a13d6a0052920003a230f3294bbe784"},
@@ -1425,6 +1464,9 @@ wcwidth = [
 ]
 wrapt = [
     {file = "wrapt-1.12.1.tar.gz", hash = "sha256:b62ffa81fb85f4332a4f609cab4ac40709470da05643a082ec1eb88e6d9b97d7"},
+]
+ws4py = [
+    {file = "ws4py-0.5.1.tar.gz", hash = "sha256:29d073d7f2e006373e6a848b1d00951a1107eb81f3742952be905429dc5a5483"},
 ]
 xlrd = [
     {file = "xlrd-1.2.0-py2.py3-none-any.whl", hash = "sha256:e551fb498759fa3a5384a94ccd4c3c02eb7c00ea424426e212ac0c57be9dfbde"},

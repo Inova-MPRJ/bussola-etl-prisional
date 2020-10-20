@@ -7,6 +7,7 @@ import os
 import time
 
 from bussola_etl_seap.bussola_etl_seap import SEAPBulletin
+from getpass import getpass
 
 
 log.reset()
@@ -19,6 +20,9 @@ INPUT_DIR = DATA_DIR + '/input'
 OUTPUT_DIR = DATA_DIR + '/output'
 EXAMPLE_FILE_PATH = INPUT_DIR + '/example.xlsx'
 
+ANVIL_TOKEN = os.environ.get('ANVIL_TOKEN')
+if ANVIL_TOKEN is None:
+    ANVIL_TOKEN = getpass('Please provide an anvil API token: ')
 
 def test_extract_localfile():
     """Tests whether extraction from local XLSX file is working as expected"""
@@ -74,3 +78,12 @@ def test_to_json():
         # check file was updated in this test (is not a preexisting file)
         log.info(f"Checking wheter {_file} was updated...")
         assert os.path.getmtime(_file) >= start
+
+def test_to_anvil():
+    """Test exporting to an Anvil app"""
+    bulletin = SEAPBulletin(EXAMPLE_FILE_PATH, date='2020-08-11')
+    assert bulletin.to_anvil(
+        tablename='occupation',
+        output_table='bsp_seap_ocupacao',
+        token=ANVIL_TOKEN,
+    )

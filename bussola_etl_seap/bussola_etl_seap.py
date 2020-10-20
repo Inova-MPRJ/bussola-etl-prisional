@@ -2,10 +2,14 @@
 # pylint: disable=redefined-outer-name,singleton-comparison
 
 import datetime
+import hashlib
 import json
+import inspect
 import re
 from typing import List, Mapping, Optional, Tuple, Union
 import log
+import anvil.server
+import anvil.tables
 import pandas as pd
 
 
@@ -104,8 +108,7 @@ class SEAPBulletin:
         self.capacity = _custody_count_parsed['capacity']
         self.imprisoned = _custody_count_parsed['imprisoned']
         self.imprisoned_detail = _custody_count_parsed['imprisoned_detail']
-        self._summary = None
-        # TODO: add summary DataFrame as an attribute
+        self.occupation = self._get_occupation()
 
     @classmethod
     def from_sharepoint(
@@ -317,6 +320,30 @@ class SEAPBulletin:
         finally:
             return regime
 
+    def _get_occupation(self):
+        """Get comparison between facilities capacity and number of inmates"""
+        joined = pd.merge(
+            self.capacity.groupby(self.id_col).sum(),
+            self.imprisoned_detail.groupby(self.id_col).sum(),
+            on='unidadeId',
+            validate="1:1",
+        )
+        joined = pd.merge(
+            self.facilities,
+            joined,
+            on='unidadeId',
+            validate='1:1',
+        )
+        return joined[
+            [
+                'unidadeId',
+                'unidadeNome',
+                'unidadeSigla',
+                'capacidadeAtual',
+                'efetivoReal',
+            ]
+        ]
+
     def to_file(
         self,
         output_file: str,
@@ -405,3 +432,45 @@ class SEAPBulletin:
                     raise RuntimeError
             log.debug(f'    Exported {tablename} table successfully!')
         log.info('Successfully exported files!')
+
+    @anvil.server.callable
+    def to_anvil(
+        self,
+        token: str,
+        tablename: str,
+        output_table: Optional[str] = None,
+    ) -> None:
+        """Export table to an Anvil app Data Table """
+        log.info('Preparing to upload to Anvil app...')
+        # get the input DataFrame by name
+        log.debug(f"    Retrieving input table '{tablename}'")
+        table = getattr(self, tablename).copy()
+        # add date field
+        log.debug('    Writing date column...')
+        table['registroData'] = self.date
+        # connect to anvil app
+        log.debug('    Connecting to Anvil App...')
+        anvil.server.connect(token)
+        # if destination DataTable name was not informed,
+        # set it as the same as the input DataFrame name
+        if output_table is None:
+            log.debug(
+                '    Automatically setting destination DataTable to ' +
+                f"'{tablename}'..."
+            )
+            output_table = tablename
+        # check whether destination DataTable exists in the app, and alias it
+        try:
+            log.debug('    Fetching destination DataTable...')
+            inspect.getmembers(anvil.tables.app_tables)
+            outtable = anvil.tables.app_tables.cache[output_table]
+        except KeyError:
+            log.error(f"There is no table named '{output_table}' in this app!")
+            raise
+        # export rows one by one to destination DataTable
+        log.info('Starting export...')
+        for record in table.to_dict(orient='records'):
+            log.debug(f"Exporting row w/facility ID {record[self.id_col]}...")
+            outtable.add_row(**record)
+        log.info('Successfully uploaded data to Anvil!')
+        return True
