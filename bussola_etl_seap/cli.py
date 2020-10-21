@@ -7,7 +7,7 @@ import log
 import os 
 
 from typing import Optional, Tuple
-from .bussola_etl_seap import SEAPBulletin
+from . import bussola_etl_seap
 
 
 # TODO: chain subcommands for extract, transform and load
@@ -97,7 +97,7 @@ def etl(
     # TODO: deal with files in SharePoint
     # TODO: deal with files in e-mail
     # TODO: deal with multiple input files or files in directory
-    bulletin = SEAPBulletin(
+    bulletin = bussola_etl_seap.SEAPBulletin(
         input_file=input_file,
         date=date,
     )
