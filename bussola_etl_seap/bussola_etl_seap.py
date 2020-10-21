@@ -1,16 +1,15 @@
 """Classes that model SEAP bulletins and methods to get info from them"""
 # pylint: disable=redefined-outer-name,singleton-comparison
 
-import datetime
-import hashlib
-import json
-import inspect
-import re
-from typing import List, Mapping, Optional, Tuple, Union
-import log
 import anvil.server
 import anvil.tables
+import datetime
+import hashlib
+import log
+import os
 import pandas as pd
+import re
+from typing import Mapping, Optional, Tuple, Union
 
 
 class SEAPBulletin:
@@ -103,12 +102,9 @@ class SEAPBulletin:
         # drop date row and unused column headers
         _custody_count_raw = _custody_count_sheet.loc[8:, :]
         # process count info into a usable format
-        _custody_count_parsed = self._parse_count(_custody_count_raw)
-        self.facilities = _custody_count_parsed['facilities']
-        self.capacity = _custody_count_parsed['capacity']
-        self.imprisoned = _custody_count_parsed['imprisoned']
-        self.imprisoned_detail = _custody_count_parsed['imprisoned_detail']
-        self.occupation = self._get_occupation()
+        self.tables = self._parse_count(_custody_count_raw)
+        # generate summary table of custody count versus capacity
+        self.tables['occupation'] = self._get_occupation()
 
     @classmethod
     def from_sharepoint(
@@ -174,7 +170,7 @@ class SEAPBulletin:
         )
         # leave only rows with valid ids
         log.info('Deleting rows with subtotals...')
-        parsed[self.id_col]= pd.to_numeric(
+        parsed[self.id_col] = pd.to_numeric(
             parsed[self.id_col],
             errors='coerce'
         )
@@ -238,7 +234,6 @@ class SEAPBulletin:
             'imprisoned': imprisoned,
             'imprisoned_detail': imprisoned_detail,
         }
-
 
     def _info_from_subtotals(
         self,
@@ -312,10 +307,10 @@ class SEAPBulletin:
         return row
 
     def _parse_regimes(self, regime_raw: str):
-        """Map original regime types to standartized values"""
+        """Map original regime types to standardized values"""
         try:
             regime = self.regime_map[regime_raw]
-        except:
+        except KeyError:
             regime = self.no_info
         finally:
             return regime
@@ -323,13 +318,13 @@ class SEAPBulletin:
     def _get_occupation(self):
         """Get comparison between facilities capacity and number of inmates"""
         joined = pd.merge(
-            self.capacity.groupby(self.id_col).sum(),
-            self.imprisoned_detail.groupby(self.id_col).sum(),
+            self.tables['capacity'].groupby(self.id_col).sum(),
+            self.tables['imprisoned_detail'].groupby(self.id_col).sum(),
             on='unidadeId',
             validate="1:1",
         )
         joined = pd.merge(
-            self.facilities,
+            self.tables['facilities'],
             joined,
             on='unidadeId',
             validate='1:1',
@@ -344,11 +339,18 @@ class SEAPBulletin:
             ]
         ]
 
+    @staticmethod
+    def _get_row_hash(row: pd.Series,) -> str:
+        """Get the SHA256 hash for the json equivalent of a pandas record"""
+        row_bytes = row.to_json(orient='records').encode()
+        digest = hashlib.sha256(row_bytes).hexdigest()
+        return digest
+
     def to_file(
         self,
         output_file: str,
         # TODO: deal with user-specified formats
-        tables: Union[str, List[str]] = 'all',
+        tablename: Union[str],
         date_col: Optional[str] = None,
         mode: str = 'w',
         orient: str = 'records',
@@ -357,18 +359,6 @@ class SEAPBulletin:
     ) -> None:
         """Export bulletin tables as a local CSV or JSON file"""
         log.info('Preparing to export...')
-        # list all subjects user wants to export
-        exports = dict()
-        if (tables != 'all') & isinstance(tables, str):
-            tables = [tables]  # make sure table string is wrapped in a list
-        if (tables == 'all') | ('facilities' in tables):
-            exports.update({'facilities': self.facilities})
-        if (tables == 'all') | ('capacity' in tables):
-            exports.update({'capacity': self.capacity})
-        if (tables == 'all') | ('imprisoned' in tables):
-            exports.update({'imprisoned': self.imprisoned})
-        if (tables == 'all') | ('imprisoned_detail' in tables):
-            exports.update({'imprisoned_detail': self.imprisoned_detail})
         # deal with export path and extension
         log.debug('    Parsing output file name...')
         try:
@@ -397,80 +387,129 @@ class SEAPBulletin:
             output_basepath
         )
         # TODO: check and deal with appending and overwriting existing files
-        # export CSV
+        # Get requested table
+        log.debug(f"    Retrieving input table '{tablename}'")
+        table = self.tables[tablename].copy()
+        # add date column, if given
+        if date_col is not None:
+            log.debug('    Adding date column...')
+            table[date_col] = self.date.date()
+        # export
         log.debug('    Starting export...')
-        for tablename, dataframe in exports.items():
-            # TODO: check if file exists and warn/fail
-            log.info(f'    Exporting {tablename} table...')
-            # add date column, if given
-            if date_col is not None:
-                log.debug('    Adding date column...')
-                dataframe[date_col] = self.date.date()
-            # export
-            outfile_path = (
-                output_basepath + '_' + tablename + '.' + output_format
-            )
-            with open(outfile_path, mode, encoding='utf-8') as outfile:
-                if output_format == 'csv':
-                    # replace temporary index
-                    dataframe.set_index(self.id_col, inplace=True)
-                    # export csv
-                    dataframe.to_csv(outfile, mode=mode, **kwargs)
-                elif output_format == 'json':
-                    # export json
-                    dataframe.to_json(
-                        outfile,
-                        orient=orient,
-                        indent=4,
-                        force_ascii=False,
-                        **kwargs
-                    )
-                else:
-                    log.error(
-                        f"Can not export to '{output_format.upper()}' format."
-                    )
-                    raise RuntimeError
-            log.debug(f'    Exported {tablename} table successfully!')
+        outfile_path = (
+            output_basepath + '_' + tablename + '.' + output_format
+        )
+        with open(outfile_path, mode, encoding='utf-8') as outfile:
+            if output_format == 'csv':
+                # replace temporary index
+                table.set_index(self.id_col, inplace=True)
+                # export csv
+                table.to_csv(outfile, mode=mode, **kwargs)
+            elif output_format == 'json':
+                # export json
+                table.to_json(
+                    outfile,
+                    orient=orient,
+                    indent=4,
+                    force_ascii=False,
+                    **kwargs
+                )
+            else:
+                log.error(
+                    f"Can not export to '{output_format.upper()}' format."
+                )
+                raise RuntimeError
+        log.debug(f'    Exported {tablename} table successfully!')
         log.info('Successfully exported files!')
 
     @anvil.server.callable
     def to_anvil(
         self,
-        token: str,
         tablename: str,
-        output_table: Optional[str] = None,
+        output_table: Optional[str] = '',
+        token: Optional[str] = None,
+        exist_policy: str = 'ignore',
+        date_col: str = "registroData",
+        hash_col: str = 'registroSHA256',
     ) -> None:
         """Export table to an Anvil app Data Table """
         log.info('Preparing to upload to Anvil app...')
         # get the input DataFrame by name
         log.debug(f"    Retrieving input table '{tablename}'")
-        table = getattr(self, tablename).copy()
-        # add date field
+        table = self.tables[tablename].copy()
+        # add date and unique id fields
         log.debug('    Writing date column...')
-        table['registroData'] = self.date
+        table['registroData'] = self.date.date()
+        log.debug('    Generating unique ID...')
+        table[hash_col] = table.apply(self._get_row_hash, axis=1)
+        # get uplink token from ANVIL_TOKEN env variable, if not provided
+        if token is None:
+            try:
+                log.debug(
+                    '    Searching for the ANVIL_TOKEN environment variable'
+                )
+                token = os.environ.get('ANVIL_TOKEN')
+                assert token is not None
+            except AssertionError:
+                log.error(
+                    'No Anvil Uplink token was provided or found in ' +
+                    'environment. Please export the ANVIL_TOKEN variable to ' +
+                    'the current environment or pass it manually.'
+                )
+                raise RuntimeError
         # connect to anvil app
         log.debug('    Connecting to Anvil App...')
         anvil.server.connect(token)
         # if destination DataTable name was not informed,
         # set it as the same as the input DataFrame name
-        if output_table is None:
+        if (output_table == '') or (output_table is None):
             log.debug(
                 '    Automatically setting destination DataTable to ' +
                 f"'{tablename}'..."
             )
             output_table = tablename
         # check whether destination DataTable exists in the app, and alias it
-        try:
-            log.debug('    Fetching destination DataTable...')
-            inspect.getmembers(anvil.tables.app_tables)
-            outtable = anvil.tables.app_tables.cache[output_table]
-        except KeyError:
+        log.debug('    Fetching destination DataTable...')
+        outtable = getattr(anvil.tables.app_tables, output_table, False,)
+        if outtable is False:
             log.error(f"There is no table named '{output_table}' in this app!")
-            raise
+            raise AttributeError
         # export rows one by one to destination DataTable
         log.info('Starting export...')
+        warn_duplicates = False
         for record in table.to_dict(orient='records'):
-            log.debug(f"Exporting row w/facility ID {record[self.id_col]}...")
-            outtable.add_row(**record)
+            log.debug(f'Exporting row with ID {record[hash_col]}...')
+            existing_row = outtable.get(**{hash_col: record[hash_col]})
+            if (existing_row is not None) and (exist_policy == 'fail'):
+                log.debug(
+                    f'Record {record[hash_col]} (facility id #' +
+                    f'{record[hash_col]}) already exist in destination.')
+                log.error(
+                    'One or more records already exist in the destination! ' +
+                    'Aborting...'
+                )
+                raise ValueError
+            elif (existing_row is not None) and (exist_policy == 'ignore'):
+                warn_duplicates = True
+                log.debug(
+                    f'Record {record[hash_col]} (facility id #' +
+                    f'{record[hash_col]}) already exist in destination.')
+                continue
+            elif (existing_row is None) or (exist_policy == 'force'):
+                warn_duplicates = True
+                outtable.add_row(**record)
+            else:
+                log.error(
+                    "Policy for existing records must be one of 'fail'" +
+                    " 'ignore', or 'force'."
+                )
+                raise AttributeError
+        if warn_duplicates is True:
+            log.warn(
+                'Duplicated records were found and handled according ' +
+                'to the policy for existent records. Check Anvil panel or ' +
+                'run this tool again with --debug option to see the repeated' +
+                ' records.'
+            )
         log.info('Successfully uploaded data to Anvil!')
         return True

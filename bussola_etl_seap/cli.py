@@ -4,7 +4,9 @@
 import datetime
 import click
 import log
+import os 
 
+from typing import Optional, Tuple
 from bussola_etl_seap import SEAPBulletin
 
 
@@ -25,13 +27,21 @@ from bussola_etl_seap import SEAPBulletin
          'If not provided, is guessed from file',
 )
 @click.option(
+    '-e',
+    '--export-table',
+    default='all',
+    show_default=True,
+    help='Table to export. Accepted values are "facilities", "capacity", ' +
+    '"imprisoned", "imprisoned_details", "occupation" and "all".',
+)
+@click.option(  # TODO: accept destination folders; combine w/ --to-anvil-table
     '-o',
     '--output-file',
     default='./data/output/[YYYY][MM][DD]_SEAPRJ.csv',
     type=click.Path(writable=True, dir_okay=False, resolve_path=True),
-    help='Path and name of the output file. '
+    help='Path and name of the output file.\n'
     + 'If not specified, it is saved in the package /data/output folder,'
-    + "preceded by the bulletin's reference date and succedded by "
+    + "preceded by the bulletin's reference date and succeded by "
     + 'the subject. Ex. 20200811_SEAPRJ_facilities.csv',
 )
 @click.option(
@@ -41,7 +51,19 @@ from bussola_etl_seap import SEAPBulletin
     help='Name of the column with bulletin date, in the exported file.'
     + ''
 )
+@click.option(  # TODO: accept multiple
+    '--to-anvil-table',
+    help='Name of an Anvil Data Table to receive the extracted data.\n' + 
+    'If not provided and --anvil-token is manually set; or if an empty ' +
+    'string ("") is passed, uses the default name for the exported table.',
+)
 @click.option(
+    '--anvil-token',
+    type=str,
+    help='Anvil Uplink token for Data Table to receive the extracted data. ' +
+    'By default, uses the environment variable $ANVIL_TOKEN .',
+)
+@click.option(  # TODO: other policies
     '-a',
     '--append',
     default=False,
@@ -60,8 +82,11 @@ from bussola_etl_seap import SEAPBulletin
 def etl(
     input_file: str,
     date: datetime,
-    output_file: str,
-    date_column: str,
+    export_table: Tuple[str],
+    output_file: Optional[str],
+    date_column: Optional[str],
+    to_anvil_table: str,
+    anvil_token: str,
     append: bool,
     verbosity: int,
 ) -> None:
@@ -76,12 +101,30 @@ def etl(
         input_file=input_file,
         date=date,
     )
+    # process 'all' is present
+    if export_table == 'all':
+        export_table = bulletin.tables.keys()
+    else:
+        # TODO: replace with real handler for multiple files
+        export_table = [export_table]
+    # export to local files
+    # TODO: refactor to accept a directory path and export all inside it
     if output_file is not None:
-        bulletin.to_file(
-            output_file,
-            tables='all',  # TODO: accept other outputs
-        )
+        for table in export_table:
+            bulletin.to_file(
+                output_file=output_file,
+                tablename=table,
+                date_col=date_column,
+            )
+    # export to Anvil
+    if (to_anvil_table is not None) or (anvil_token is not None):
+        for table in export_table:
+            bulletin.to_anvil(
+                tablename=table,
+                output_table=to_anvil_table,
+                token=anvil_token,
+                date_col=date_column,
+            )
 
-
-if __name__ == '__main__':  # pragma: no cove
+if __name__ == '__main__':  # pragma: no cover
     etl()
