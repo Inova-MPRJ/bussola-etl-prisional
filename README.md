@@ -10,6 +10,8 @@ Este projeto foi gerado com [cookiecutter](https://github.com/audreyr/cookiecutt
 ## Requisitos
 
 * Python 3.8
+* poetry
+* git
 
 ### Windows
 
@@ -21,26 +23,21 @@ Este projeto foi gerado com [cookiecutter](https://github.com/audreyr/cookiecutt
 
 ## Instalação
 
-Instale diretamente em um ambiente virtual ativo:
+Temporariamente, o pacote só pode ser instalado copiando e repositório e instalando-o com o [Poetry](https://poetry.eustace.io/):
 
 ```text
-$ pip install BussolaETLSeap
-```
-
-ou adicione a um projeto com o [Poetry](https://poetry.eustace.io/):
-
-```text
-$ poetry add BussolaETLSeap
+$ git clone https://github.com/Inova-MPRJ/bussola-etl-prisional.git
+$ cd bussola-etl-prisional
+$ poetry install --no-dev
 ```
 
 ## Uso
 
-Após a instalação, o pacote pode ser importado:
+Após a instalação, a ferramenta pode ser chamada pela interface de linha de comando, utilizando o comando `poetry run python -m bussola_etl_seap` na pasta de instalação:
 
 ```text
-$ python
->>> import bussola_etl_seap
->>> bussola_etl_seap.__version__ #obter a versao do pacote
+$ # exportar um resumo da planilha de exemplo para um arquivo CSV em ./data/output
+$ poetry run python -m bussola_etl_seap -i ./data/input/example.xlsx -e occupation -o ./data/20200811_SEAP_ocupacao.csv
 ```
 
 ## AVISO
