@@ -40,6 +40,13 @@ $ # exportar um resumo da planilha de exemplo para um arquivo CSV em ./data/outp
 $ poetry run python -m bussola_etl_seap -i ./data/input/example.xlsx -e occupation -o ./data/20200811_SEAP_ocupacao.csv
 ```
 
+A ferramenta também pode ser usada para exportar para uma tabela para um aplicativo no [Anvil](https://anvil.works/):
+```text
+$ # upload para o Data Table 'bsp_seap_ocupacao', com a mesma estrutura do arquivo de 
+$ # origem
+$ poetry run python -m bussola_etl_seap -i ./data/input/example.xlsx -e occupation --to-anvil-table="bsp_seap_ocupacao" --anvil-token="MY_VERY_SECRET_TOKEN"
+```
+
 ## AVISO
 
 Este pacote está em desenvolvimento e é absolutamente experimental. A validade dos resultados extraídos e a compatibilidade com versões futuras não é garantida. Use por sua conta e risco.
