@@ -4,10 +4,6 @@ Ferramentas de extração, transformação e carregamento dos dados dos boletins
 
 Este projeto foi gerado com [cookiecutter](https://github.com/audreyr/cookiecutter) usando [jacebrowning/template-python](https://github.com/jacebrowning/template-python).
 
-[![Unix Build Status](https://img.shields.io/travis/inova-mprj/bussola-etl-seap.svg?label=unix)](https://travis-ci.org/inova-mprj/bussola-etl-seap)
-[![Windows Build Status](https://img.shields.io/appveyor/ci/inova-mprj/bussola-etl-seap.svg?label=windows)](https://ci.appveyor.com/project/inova-mprj/bussola-etl-seap)
-[![Coverage Status](https://img.shields.io/coveralls/inova-mprj/bussola-etl-seap.svg)](https://coveralls.io/r/inova-mprj/bussola-etl-seap)
-[![Scrutinizer Code Quality](https://img.shields.io/scrutinizer/g/inova-mprj/bussola-etl-seap.svg)](https://scrutinizer-ci.com/g/inova-mprj/bussola-etl-seap)
 [![PyPI Version](https://img.shields.io/pypi/v/BussolaETLSeap.svg)](https://pypi.org/project/BussolaETLSeap)
 [![PyPI License](https://img.shields.io/pypi/l/BussolaETLSeap.svg)](https://pypi.org/project/BussolaETLSeap)
 
@@ -37,7 +33,7 @@ ou adicione a um projeto com o [Poetry](https://poetry.eustace.io/):
 $ poetry add BussolaETLSeap
 ```
 
-# Uso
+## Uso
 
 Após a instalação, o pacote pode ser importado:
 
@@ -46,3 +42,7 @@ $ python
 >>> import bussola_etl_seap
 >>> bussola_etl_seap.__version__ #obter a versao do pacote
 ```
+
+## AVISO
+
+Este pacote está em desenvolvimento e é absolutamente experimental. A validade dos resultados extraídos e a compatibilidade com versões futuras não é garantida. Use por sua conta e risco.
