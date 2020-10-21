@@ -7,7 +7,7 @@ import log
 import os 
 
 from typing import Optional, Tuple
-from bussola_etl_seap import SEAPBulletin
+from .bussola_etl_seap import SEAPBulletin
 
 
 # TODO: chain subcommands for extract, transform and load
