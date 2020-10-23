@@ -37,12 +37,8 @@ from . import bussola_etl_seap
 @click.option(  # TODO: accept destination folders; combine w/ --to-anvil-table
     '-o',
     '--output-file',
-    default='./data/output/[YYYY][MM][DD]_SEAPRJ.csv',
     type=click.Path(writable=True, dir_okay=False, resolve_path=True),
-    help='Path and name of the output file.\n'
-    + 'If not specified, it is saved in the package /data/output folder,'
-    + "preceded by the bulletin's reference date and succeded by "
-    + 'the subject. Ex. 20200811_SEAPRJ_facilities.csv',
+    help='Path and name of the output file.'
 )
 @click.option(
     '--date-column',
