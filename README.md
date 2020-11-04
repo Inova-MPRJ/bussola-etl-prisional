@@ -10,7 +10,7 @@ Este projeto foi gerado com [cookiecutter](https://github.com/audreyr/cookiecutt
 ## Requisitos
 
 * Python 3.8
-* poetry
+* pip3 e/ou pipx
 * git
 
 ### Windows
@@ -23,28 +23,39 @@ Este projeto foi gerado com [cookiecutter](https://github.com/audreyr/cookiecutt
 
 ## Instalação
 
-Temporariamente, o pacote só pode ser instalado copiando e repositório e instalando-o com o [Poetry](https://poetry.eustace.io/):
+O pacote pode ser instalado a partir do repositório no GitHub, com o comando `python -m pip install`. Porém, recomenda-se que você utilize o utilitário `pipx`, que instala a ferramenta direto em um ambiente virtual:
 
 ```text
-$ git clone https://github.com/Inova-MPRJ/bussola-etl-prisional.git
-$ cd bussola-etl-prisional
-$ poetry install --no-dev
+$ # no windows, pode ser necessário chamar o comando `python.exe`
+$ python -m pip install git+https://github.com/Inova-MPRJ/bussola-etl-prisional.git
+```
+
+```text
+$ # OU instale em um ambiente virtual usando o comando pipx
+$ pipx install git+https://github.com/Inova-MPRJ/bussola-etl-prisional.git
+```
+
+Alternativamente, você pode instalar o pacote como uma dependência em um projeto pré-existente utilizando o gerenciador de dependências [Poetry](https://poetry.eustace.io/):
+
+```text
+$ poetry add git+https://github.com/Inova-MPRJ/bussola-etl-prisional.git
+$ poetry install
 ```
 
 ## Uso
 
-Após a instalação, a ferramenta pode ser chamada pela interface de linha de comando, utilizando o comando `poetry run python -m bussola_etl_seap` na pasta de instalação:
+Após a instalação, a ferramenta pode ser chamada pela interface de linha de comando, utilizando o comando `BussolaETLSeap`:
 
 ```text
 $ # exportar um resumo da planilha de exemplo para um arquivo CSV em ./data/output
-$ poetry run python -m bussola_etl_seap -i ./data/input/example.xlsx -e occupation -o ./data/20200811_SEAP_ocupacao.csv
+$ BussolaETLSeap -i ./data/input/example.xlsx -e occupation -o ./data/20200811_SEAP_ocupacao.csv
 ```
 
 A ferramenta também pode ser usada para exportar para uma tabela para um aplicativo no [Anvil](https://anvil.works/):
 ```text
 $ # upload para o Data Table 'bsp_seap_ocupacao', com a mesma estrutura do arquivo de 
 $ # origem
-$ poetry run python -m bussola_etl_seap -i ./data/input/example.xlsx -e occupation --to-anvil-table="bsp_seap_ocupacao" --anvil-token="MY_VERY_SECRET_TOKEN"
+$ BussolaETLSeap -i ./data/input/example.xlsx -e occupation --to-anvil-table="bsp_seap_ocupacao" --anvil-token="MY_VERY_SECRET_TOKEN"
 ```
 
 ## AVISO
