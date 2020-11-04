@@ -3,7 +3,6 @@
 """Package entry point."""
 
 
-from . import bussola_etl_seap
 from .cli import etl
 
 

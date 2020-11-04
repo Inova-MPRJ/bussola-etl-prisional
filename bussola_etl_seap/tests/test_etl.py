@@ -7,7 +7,7 @@ import time
 from getpass import getpass
 import log
 
-from bussola_etl_seap.bussola_etl_seap import SEAPBulletin
+from ..bussola_etl_seap import SEAPBulletin
 
 
 log.reset()
