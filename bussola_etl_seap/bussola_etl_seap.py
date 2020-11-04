@@ -8,6 +8,7 @@ import hashlib
 import log
 import os
 import pandas as pd
+import pymongo
 import re
 from typing import Mapping, Optional, Tuple, Union
 
@@ -431,7 +432,7 @@ class SEAPBulletin:
         exist_policy: str = 'ignore',
         date_col: str = "registroData",
         hash_col: str = 'registroSHA256',
-    ) -> None:
+    ) -> bool:
         """Export table to an Anvil app Data Table """
         log.info('Preparing to upload to Anvil app...')
         # get the input DataFrame by name
@@ -439,7 +440,7 @@ class SEAPBulletin:
         table = self.tables[tablename].copy()
         # add date and unique id fields
         log.debug('    Writing date column...')
-        table['registroData'] = self.date.date()
+        table[date_col] = self.date.date()
         log.debug('    Generating unique ID...')
         table[hash_col] = table.apply(self._get_row_hash, axis=1)
         # get uplink token from ANVIL_TOKEN env variable, if not provided
@@ -513,3 +514,79 @@ class SEAPBulletin:
             )
         log.info('Successfully uploaded data to Anvil!')
         return True
+
+    def to_mongo(
+        self,
+        tablename: str,
+        connection_string: str,
+        database: str,
+        date_col: str = 'registroData',
+        exist_policy: str = 'ignore',
+    ) -> None:
+        """Export table to a MongoDB instance."""
+        log.info('Preparing to upload to MongoDB...')
+        # get the input DataFrame by name
+        log.debug(f"    Retrieving input table '{tablename}'")
+        table = self.tables[tablename].copy()
+        # add date and unique id fields
+        log.debug('    Writing date and source columns...')
+        table[date_col] = self.date
+        table['registroFonte'] = (
+            'Secretaria de Estado de Administração Penitenciária do Rio de ' +
+            'Janeiro'
+        )
+        log.debug('    Generating unique ID...')
+        table["_id"] = table[[self.id_col, date_col, 'registroFonte']].apply(
+            self._get_row_hash,
+            axis=1,
+        )
+        try:
+            log.info('Starting connection...')
+            log.debug(connection_string)
+            client = pymongo.MongoClient(
+                connection_string,
+                serverSelectionTimeoutMS=3000,  # 3 second timeout
+            )
+            log.debug('Connection established.')
+            db = client[database]
+            collection = db[tablename]
+            log.debug('Starting upload...')
+            warn_duplicates = False
+            for record in table.to_dict(orient='records'):
+                # check for duplicates
+                existing_doc = collection.find_one({'_id': record['_id']})
+                if existing_doc is not None:
+                    # handles duplicate
+                    warn_duplicates = True
+                    log.debug(f"Record {record['_id']} already exists.")
+                    if exist_policy == 'fail':
+                        log.error(
+                            'One or more records already exist in the ' +
+                            'destination and exist_policy is  ' +
+                            'Aborting...'
+                        )
+                        raise ValueError
+                    elif exist_policy == 'update':
+                        collection.update_one(record)
+                    elif exist_policy == 'ignore':
+                        continue
+                    else:
+                        log.error(
+                            'Policy for existing records must be one of ' +
+                            "'fail', 'ignore', or 'force'."
+                        )
+                        raise ValueError
+                else:
+                    # if there are no duplicates, proceed and insert value
+                    collection.insert_one(record)
+            if warn_duplicates is True:
+                log.warn(
+                    'Duplicated records were found and handled according ' +
+                    'to the policy for existent records. Check Anvil panel ' +
+                    'or run this tool again with --debug option to see the ' +
+                    'repeated records.'
+                )
+            log.info('Finished uploading data to MongoDB.')
+        except pymongo.errors.ServerSelectionTimeoutError as err:
+            log.error("MongoDB ERROR: ", err)
+            raise

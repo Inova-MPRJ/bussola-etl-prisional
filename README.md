@@ -51,11 +51,10 @@ $ # exportar um resumo da planilha de exemplo para um arquivo CSV em ./data/outp
 $ BussolaETLSeap -i ./data/input/example.xlsx -e occupation -o ./data/20200811_SEAP_ocupacao.csv
 ```
 
-A ferramenta também pode ser usada para exportar para uma tabela para um aplicativo no [Anvil](https://anvil.works/):
+A ferramenta também pode ser usada para exportar para uma tabela para uma instância de banco de dados de documentos MongoDB:
 ```text
-$ # upload para o Data Table 'bsp_seap_ocupacao', com a mesma estrutura do arquivo de 
-$ # origem
-$ BussolaETLSeap -i ./data/input/example.xlsx -e occupation --to-anvil-table="bsp_seap_ocupacao" --anvil-token="MY_VERY_SECRET_TOKEN"
+$ # mude a string de conexão de acordo com o banco de dados utilizado
+$  BussolaETLSeap -i ./data/input/example.xlsx --to-mongo "mongodb://myuser:veryverydifficultpassword@127.0.0.1:27017/?ssl=true"
 ```
 
 ## AVISO

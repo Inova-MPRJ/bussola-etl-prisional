@@ -40,13 +40,6 @@ from bussola_etl_seap import bussola_etl_seap
     type=click.Path(writable=True, dir_okay=False, resolve_path=True),
     help='Path and name of the output file.'
 )
-@click.option(
-    '--date-column',
-    default=None,
-    type=str,
-    help='Name of the column with bulletin date, in the exported file.'
-    + ''
-)
 @click.option(  # TODO: accept multiple
     '--to-anvil-table',
     help='Name of an Anvil Data Table to receive the extracted data.\n' + 
@@ -58,6 +51,24 @@ from bussola_etl_seap import bussola_etl_seap
     type=str,
     help='Anvil Uplink token for Data Table to receive the extracted data. ' +
     'By default, uses the environment variable $ANVIL_TOKEN .',
+)
+@click.option(  # TODO: accept multiple
+    '--to-mongo',
+    type=str,
+    help='Connection string of a MongoDB instance for uploading parsed data.',
+)
+@click.option(  # TODO: accept multiple
+    '--mongo-dbname',
+    type=str,
+    default='seap',
+    help='Database to which parsed data will be loaded, when exporting to a ' +
+         'MongoDB instance.',
+)
+@click.option(
+    '--date-column',
+    default='registroData',
+    type=str,
+    help='Name of the column with bulletin date, in the exported file.'
 )
 @click.option(  # TODO: other policies
     '-a',
@@ -80,10 +91,12 @@ def etl(
     date: datetime,
     export_table: Tuple[str],
     output_file: Optional[str],
-    date_column: Optional[str],
-    to_anvil_table: str,
-    anvil_token: str,
-    append: bool,
+    to_anvil_table: Optional[str],
+    anvil_token: Optional[str],
+    to_mongo: Optional[str],
+    mongo_dbname: str,
+    date_column: str,
+    append: Optional[bool],
     verbosity: int,
 ) -> None:
     """Get info from a SEAP/RJ bulletin saved as a local .XLSX file"""
@@ -119,6 +132,16 @@ def etl(
                 tablename=table,
                 output_table=to_anvil_table,
                 token=anvil_token,
+                date_col=date_column,
+            )
+
+    # export to MongoDB
+    if to_mongo is not None:
+        for table in export_table:
+            bulletin.to_mongo(
+                tablename=table,
+                connection_string=to_mongo,
+                database=mongo_dbname,
                 date_col=date_column,
             )
 

@@ -38,6 +38,7 @@ minilog = "^1.5"
 pandas = "^1.1"
 xlrd = "^1.2.0"
 anvil-uplink = "^0.3.33"
+pymongo = "^3.11.0"
 
 [tool.poetry.dev-dependencies]
 
@@ -51,7 +52,7 @@ pydocstyle = "*"
 pylint = "~2.6.0"
 
 # Testing
-pytest = "^5.3.2"
+pytest = "^5.3."
 pytest-cov = "*"
 pytest-describe = { git = "https://github.com/pytest-dev/pytest-describe", rev = "453aa9045b265e313f356f1492d8991c02a6aea6" } # use 2.0 when released
 pytest-expecter = "^2.1"
